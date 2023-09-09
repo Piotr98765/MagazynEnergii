@@ -17,8 +17,8 @@ winter_energy_consumption_24h = [1090.51, 1097.77, 1079.91, 1067.44, 1219.34, 14
 def extend_energy_consumption(original_list, hours):
     return list(itertools.islice(itertools.cycle(original_list), hours))
 
-def holiday_energy_consumption(list_in_wats):
-    return [x * 0.1 for x in list_in_wats]
+def holiday_energy_consumption(origina_list):
+    return [x * 0.1 for x in origina_list]
 
 # Function to create DataFrame
 def create_energy_consumption_dataframe():

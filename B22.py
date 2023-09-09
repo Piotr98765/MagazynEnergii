@@ -1,95 +1,96 @@
 import pandas as pd
 import itertools
 
-# Przykładowa lista zużycia energii dla 24 godzin w okresie letnim
-zużycie_energii_24h_lato = [762.34, 760.68, 748.73, 750.72, 866.58, 1044.92, 1120.25, 1201.87, 1390.13, 1472.8, 1514.94, 1550.73, 1590.24, 1571.61, 1600, 1475.29, 1404.06, 1358.35, 1360.91, 1286.4, 1165.12, 1033.45, 914.99, 784.74]
+# Constants
+HOURS_IN_YEAR = 8760
+HOLIDAY_MULTIPLIER = 0.1
+PRICE_PER_KW_SUMMER = 2.499
+PRICE_PER_KW_WINTER = 2.264
 
-# Przykładowa lista zużycia energii dla 24 godzin w okresie zimowym
-zużycie_energii_24h_zima = [1090.51, 1097.77, 1079.91, 1067.44, 1219.34, 1401.5, 1478.97, 1512.34, 1600, 1575.48, 1545.97, 1535.45, 1526.82, 1512.34, 1581.99, 1587.36, 1569.66, 1572.37, 1551.89, 1518.39, 1434.77, 1278.16, 1147.82, 1019.5]
+# Sample energy consumption lists for 24 hours in summer and winter
+summer_energy_consumption_24h = [762.34, 760.68, 748.73, 750.72, 866.58, 1044.92, 1120.25, 1201.87, 1390.13, 1472.8, 1514.94, 1550.73, 1590.24, 1571.61, 1600, 1475.29, 1404.06, 1358.35, 1360.91, 1286.4, 1165.12, 1033.45, 914.99, 784.74]
+winter_energy_consumption_24h = [1090.51, 1097.77, 1079.91, 1067.44, 1219.34, 1401.5, 1478.97, 1512.34, 1600, 1575.48, 1545.97, 1535.45, 1526.82, 1512.34, 1581.99, 1587.36, 1569.66, 1572.37, 1551.89, 1518.39, 1434.77, 1278.16, 1147.82, 1019.5]
 
-# Rozszerzenie listy zużycia energii dla 24 godzin w okresie letnim do 8760 godzin
-zużycie_energii_8760h_lato = list(itertools.islice(itertools.cycle(zużycie_energii_24h_lato), 8760))
+# Function to extend energy consumption listOkres
+def extend_energy_consumption(original_list, hours):
+    return list(itertools.islice(itertools.cycle(original_list), hours))
 
-# Rozszerzenie listy zużycia energii dla 24 godzin w okresie zimowym do 8760 godzin
-zużycie_energii_8760h_zima = list(itertools.islice(itertools.cycle(zużycie_energii_24h_zima), 8760))
+def holiday_energy_consumption(origina_list):
+    return [x * 0.1 for x in origina_list]
 
-# Przykładowa lista zużycia energii dla 24 godzin w okresie letnim w dni wolne
-zużycie_energii_24h_lato_dzien_wolny = [x * 0.1 for x in zużycie_energii_24h_lato]
-zużycie_energii_24h_zima_dzien_wolny = [x * 0.1 for x in zużycie_energii_24h_zima]
+# Function to create DataFrame
+def create_energy_consumption_dataframe():
+    df = pd.DataFrame(columns=['Hour', 'Date', 'Energy Consumption [kWh]', 'Period', 'Is Holiday'])
 
-# Rozszerzenie listy zużycia energii dla 24 godzin w okresie letnim w dni wolne do 8760 godzin
-zużycie_energii_8760h_lato_dzien_wolny = list(itertools.islice(itertools.cycle(zużycie_energii_24h_lato_dzien_wolny), 8760))
-zużycie_energii_8760h_zima_dzien_wolny = list(itertools.islice(itertools.cycle(zużycie_energii_24h_zima_dzien_wolny), 8760))
+    hours_range = range(1, 8761)
+    df['Hour'] = hours_range
 
-# Rozszerzenie listy zużycia energii dla 24 godzin w okresie zimowym do 8760 godzin
-zużycie_energii_8760h_zima = []
-for i in range(8760):
-    zużycie_energii_8760h_zima.extend(zużycie_energii_24h_zima)
+    # Dodanie kolumny z numerem godziny
+    df['Date'] = pd.date_range('2023-01-01 00:00:00', periods=8760, freq='H')
 
-# Rozszerzenie listy zużycia energii dla 24 godzin w okresie letnim w dniu wolnym do 8760 godzin
-zużycie_energii_8760h_lato_dzien_wolny = list(itertools.islice(itertools.cycle(zużycie_energii_24h_lato_dzien_wolny), 8760))
+    # Dodanie kolumny z informacją o okresie letnim/zimowym
+    df['Period'] = df['Date'].apply(lambda x: 'Summer' if (x.month >= 4 and x.month <= 9) else 'Winter')
 
-# Rozszerzenie listy zużycia energii dla 24 godzin w okresie zimowym w dniu wolnym do 8760 godzin
-zużycie_energii_8760h_zima_dzien_wolny = []
-for i in range(8760):
-    zużycie_energii_8760h_zima_dzien_wolny.extend(zużycie_energii_24h_zima_dzien_wolny)
+    # Dodanie kolumny z informacją o dniu wolnym
+    df['Is Holiday'] = df['Date'].apply(lambda x: 'Yes' if (x.weekday() == 6 or x.date() in [
+        pd.Timestamp(2023, 1, 1), pd.Timestamp(2023, 1, 6), pd.Timestamp(2023, 4, 9), pd.Timestamp(2023, 4, 10),
+        pd.Timestamp(2023, 5, 1), pd.Timestamp(2023, 5, 3), pd.Timestamp(2023, 5, 28), pd.Timestamp(2023, 6, 8), pd.Timestamp(2023, 8, 15),
+        pd.Timestamp(2023, 11, 1), pd.Timestamp(2023, 11, 11), pd.Timestamp(2023, 11, 13), pd.Timestamp(2023, 12, 25), pd.Timestamp(2023, 12, 26)
+    ]) else 'No')
 
-# Utworzenie DataFrame z rozszerzoną listą danych
-df = pd.DataFrame(columns=['Godzina', 'Data', 'Zużycie energii [kWh]', 'Okres', 'Czy wolne'])
+    # Dodanie kolumny z informacją o strefie szczytowej/pozaszczytowej
+    df['Price per kW [PLN]'] = df.apply(lambda x: 2.499 if (
+        (x['Date'].month in [1, 2, 11, 12] and (
+            (x['Date'].hour >= 8 and x['Date'].hour < 11) or
+            (x['Date'].hour >= 16 and x['Date'].hour < 21)
+        )) or
+        (x['Date'].month in [3, 10] and (
+            (x['Date'].hour >= 8 and x['Date'].hour < 11) or
+            (x['Date'].hour >= 18 and x['Date'].hour < 21)
+        )) or
+        (x['Date'].month in [4, 9] and (
+            (x['Date'].hour >= 8 and x['Date'].hour < 11) or
+            (x['Date'].hour >= 19 and x['Date'].hour < 21)
+        )) or
+        (x['Date'].month in [5, 6, 7, 8] and (
+            (x['Date'].hour >= 8 and x['Date'].hour < 11) or
+            (x['Date'].hour >= 20 and x['Date'].hour < 21)
+        ))
+    ) else 2.264, axis=1)
 
-hours_range = range(1, 8761)
-df['Godzina'] = hours_range
+    # Inicjalizacja kolumny 'Zużycie energii' pustymi wartościami
+    df['Energy Consumption [kWh]'] = ''
+    
+    return df
 
-# Dodanie kolumny z numerem godziny
-df['Data'] = pd.date_range('2023-01-01 00:00:00', periods=8760, freq='H')
+def main():
+    summer_energy_consumption_8760h = extend_energy_consumption(summer_energy_consumption_24h, HOURS_IN_YEAR)
+    winter_energy_consumption_8760h = extend_energy_consumption(winter_energy_consumption_24h, HOURS_IN_YEAR)
 
-# Dodanie kolumny z informacją o okresie letnim/zimowym
-df['Okres'] = df['Data'].apply(lambda x: 'Letni' if (x.month >= 4 and x.month <= 9) else 'Zimowy')
+    holiday_summer_energy_consumption_24h = holiday_energy_consumption(summer_energy_consumption_24h)
+    holiday_winter_energy_consumption_24h = holiday_energy_consumption(winter_energy_consumption_24h)
 
-# Dodanie kolumny z informacją o dniu wolnym
-df['Czy wolne'] = df['Data'].apply(lambda x: 'Tak' if (x.weekday() == 6 or x.date() in [
-    pd.Timestamp(2023, 1, 1), pd.Timestamp(2023, 1, 6), pd.Timestamp(2023, 4, 9), pd.Timestamp(2023, 4, 10),
-    pd.Timestamp(2023, 5, 1), pd.Timestamp(2023, 5, 3), pd.Timestamp(2023, 5, 28), pd.Timestamp(2023, 6, 8), pd.Timestamp(2023, 8, 15),
-    pd.Timestamp(2023, 11, 1), pd.Timestamp(2023, 11, 11), pd.Timestamp(2023, 11, 13), pd.Timestamp(2023, 12, 25), pd.Timestamp(2023, 12, 26)
-]) else 'Nie')
+    holiday_summer_energy_consumption_8760h = extend_energy_consumption(holiday_summer_energy_consumption_24h, HOURS_IN_YEAR)
+    holiday_winter_energy_consumption_8760h = extend_energy_consumption(holiday_winter_energy_consumption_24h, HOURS_IN_YEAR)
 
-# Dodanie kolumny z informacją o strefie szczytowej/pozaszczytowej
-df['Cena za kW [zł]'] = df.apply(lambda x: '2.499' if (
-    (x['Data'].month in [1, 2, 11, 12] and (
-        (x['Data'].hour >= 8 and x['Data'].hour < 11) or
-        (x['Data'].hour >= 16 and x['Data'].hour < 21)
-    )) or
-    (x['Data'].month in [3, 10] and (
-        (x['Data'].hour >= 8 and x['Data'].hour < 11) or
-        (x['Data'].hour >= 18 and x['Data'].hour < 21)
-    )) or
-    (x['Data'].month in [4, 9] and (
-        (x['Data'].hour >= 8 and x['Data'].hour < 11) or
-        (x['Data'].hour >= 19 and x['Data'].hour < 21)
-    )) or
-    (x['Data'].month in [5, 6, 7, 8] and (
-        (x['Data'].hour >= 8 and x['Data'].hour < 11) or
-        (x['Data'].hour >= 20 and x['Data'].hour < 21)
-    ))
-) else '2.264', axis=1)
+    df = create_energy_consumption_dataframe()
 
-# Inicjalizacja kolumny 'Zużycie energii' pustymi wartościami
-df['Zużycie energii [kWh]'] = ''
+    # Replacing energy consumption values for summer and holidays
+    df.loc[(df['Period'] == 'Summer') & (df['Is Holiday'] == 'Yes'), 'Energy Consumption [kWh]'] = pd.Series(holiday_summer_energy_consumption_8760h)
 
-# Zastąpienie wartości zużycia energii dla okresu letniego i dni wolnych
-df.loc[(df['Okres'] == 'Letni') & (df['Czy wolne'] == 'Tak'), 'Zużycie energii [kWh]'] = pd.Series(zużycie_energii_8760h_lato_dzien_wolny)
+    # Replacing energy consumption values for summer and workdays
+    df.loc[(df['Period'] == 'Summer') & (df['Is Holiday'] == 'No'), 'Energy Consumption [kWh]'] = pd.Series(summer_energy_consumption_8760h)
 
-# Zastąpienie wartości zużycia energii dla okresu letniego i dni roboczych
-df.loc[(df['Okres'] == 'Letni') & (df['Czy wolne'] == 'Nie'), 'Zużycie energii [kWh]'] = pd.Series(zużycie_energii_8760h_lato)
+    # Replacing energy consumption values for winter and holidays
+    df.loc[(df['Period'] == 'Winter') & (df['Is Holiday'] == 'Yes'), 'Energy Consumption [kWh]'] = pd.Series(holiday_winter_energy_consumption_8760h)
+    df.loc[(df['Period'] == 'Winter') & (df['Is Holiday'] == 'No'), 'Energy Consumption [kWh]'] = pd.Series(winter_energy_consumption_8760h)
 
-# Zastąpienie wartości zużycia energii dla okresu zimowego i dni wolnych
-df.loc[(df['Okres'] == 'Zimowy') & (df['Czy wolne'] == 'Tak'), 'Zużycie energii [kWh]'] = pd.Series(zużycie_energii_8760h_zima_dzien_wolny)
-df.loc[(df['Okres'] == 'Zimowy') & (df['Czy wolne'] == 'Nie'), 'Zużycie energii [kWh]'] = pd.Series(zużycie_energii_8760h_zima)
-# Zastąpienie wartości zużycia energii dla okresu zimowego i dni roboczych
-df['Zużycie energii [kWh]'] = pd.to_numeric(df['Zużycie energii [kWh]'], errors='coerce')
-df['Cena za kW [zł]'] = pd.to_numeric(df['Cena za kW [zł]'], errors='coerce')
-df['Koszt [zł]'] = df['Zużycie energii [kWh]'] * df['Cena za kW [zł]']
-# Zapisanie danych do pliku Excel
-df.to_excel('B22.xlsx', index=False)
+    
+    df['Cost [PLN]'] = df['Energy Consumption [kWh]'] * df['Price per kW [PLN]']
+    
+    df.to_excel('newB22.xlsx', index=False)
 
-print("Dane zostały zapisane do pliku 'B22.xlsx'")
+    print("Data has been saved to the 'B22.xlsx' file")
+
+if __name__ == '__main__':
+    main()
