@@ -1,15 +1,17 @@
-import pandas as pd
 import itertools
+import pandas as pd
 
 # Constants
 HOURS_IN_YEAR = 8760
 HOLIDAY_MULTIPLIER = 0.1
-PRICE_PER_KW_SUMMER = 2.499
-PRICE_PER_KW_WINTER = 2.264
+PRICE_PER_KW_PEAK = 2.499
+PRICE_PER_KW_OFFPEAK = 2.264
 
+############################Data###################################
 # Sample energy consumption lists for 24 hours in summer and winter
 summer_energy_consumption_24h = [762.34, 760.68, 748.73, 750.72, 866.58, 1044.92, 1120.25, 1201.87, 1390.13, 1472.8, 1514.94, 1550.73, 1590.24, 1571.61, 1600, 1475.29, 1404.06, 1358.35, 1360.91, 1286.4, 1165.12, 1033.45, 914.99, 784.74]
 winter_energy_consumption_24h = [1090.51, 1097.77, 1079.91, 1067.44, 1219.34, 1401.5, 1478.97, 1512.34, 1600, 1575.48, 1545.97, 1535.45, 1526.82, 1512.34, 1581.99, 1587.36, 1569.66, 1572.37, 1551.89, 1518.39, 1434.77, 1278.16, 1147.82, 1019.5]
+###################################################################
 
 # Function to extend energy consumption listOkres
 def extend_energy_consumption(original_list, hours):
@@ -25,21 +27,21 @@ def create_energy_consumption_dataframe():
     hours_range = range(1, 8761)
     df['Hour'] = hours_range
 
-    # Dodanie kolumny z numerem godziny
+    # Adding a column with the hour number
     df['Date'] = pd.date_range('2023-01-01 00:00:00', periods=8760, freq='H')
 
-    # Dodanie kolumny z informacją o okresie letnim/zimowym
+    # Adding a column with information about the summer/winter period
     df['Period'] = df['Date'].apply(lambda x: 'Summer' if (x.month >= 4 and x.month <= 9) else 'Winter')
 
-    # Dodanie kolumny z informacją o dniu wolnym
+    # Adding a column with information about holidays
     df['Is Holiday'] = df['Date'].apply(lambda x: 'Yes' if (x.weekday() == 6 or x.date() in [
         pd.Timestamp(2023, 1, 1), pd.Timestamp(2023, 1, 6), pd.Timestamp(2023, 4, 9), pd.Timestamp(2023, 4, 10),
         pd.Timestamp(2023, 5, 1), pd.Timestamp(2023, 5, 3), pd.Timestamp(2023, 5, 28), pd.Timestamp(2023, 6, 8), pd.Timestamp(2023, 8, 15),
         pd.Timestamp(2023, 11, 1), pd.Timestamp(2023, 11, 11), pd.Timestamp(2023, 11, 13), pd.Timestamp(2023, 12, 25), pd.Timestamp(2023, 12, 26)
     ]) else 'No')
 
-    # Dodanie kolumny z informacją o strefie szczytowej/pozaszczytowej
-    df['Price per kW [PLN]'] = df.apply(lambda x: 2.499 if (
+    # Adding a column with information about peak/off-peak zone
+    df['Price per kW [PLN]'] = df.apply(lambda x: PRICE_PER_KW_PEAK if (
         (x['Date'].month in [1, 2, 11, 12] and (
             (x['Date'].hour >= 8 and x['Date'].hour < 11) or
             (x['Date'].hour >= 16 and x['Date'].hour < 21)
@@ -56,9 +58,9 @@ def create_energy_consumption_dataframe():
             (x['Date'].hour >= 8 and x['Date'].hour < 11) or
             (x['Date'].hour >= 20 and x['Date'].hour < 21)
         ))
-    ) else 2.264, axis=1)
+    ) else PRICE_PER_KW_OFFPEAK, axis=1)
 
-    # Inicjalizacja kolumny 'Zużycie energii' pustymi wartościami
+    # Initializing the 'Energy Consumption' column with empty values
     df['Energy Consumption [kWh]'] = ''
     
     return df
@@ -88,7 +90,7 @@ def main():
     
     df['Cost [PLN]'] = df['Energy Consumption [kWh]'] * df['Price per kW [PLN]']
     
-    df.to_excel('newB22.xlsx', index=False)
+    df.to_excel('B22.xlsx', index=False)
 
     print("Data has been saved to the 'B22.xlsx' file")
 
