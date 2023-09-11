@@ -60,6 +60,25 @@ def create_energy_consumption_dataframe():
         ))
     ) else PRICE_PER_KW_OFFPEAK, axis=1)
 
+    df['Status'] = df.apply(lambda x: 'DISCHARGING' if (
+    (x['Date'].month in [1, 2, 11, 12] and (
+        (x['Date'].hour >= 8 and x['Date'].hour < 11) or
+        (x['Date'].hour >= 16 and x['Date'].hour < 21)
+    )) or
+    (x['Date'].month in [3, 10] and (
+        (x['Date'].hour >= 8 and x['Date'].hour < 11) or
+        (x['Date'].hour >= 18 and x['Date'].hour < 21)
+    )) or
+    (x['Date'].month in [4, 9] and (
+        (x['Date'].hour >= 8 and x['Date'].hour < 11) or
+        (x['Date'].hour >= 19 and x['Date'].hour < 21)
+    )) or
+    (x['Date'].month in [5, 6, 7, 8] and (
+        (x['Date'].hour >= 8 and x['Date'].hour < 11) or
+        (x['Date'].hour >= 20 and x['Date'].hour < 21)
+    ))
+    ) else 'CHARGING', axis=1)
+
     # Initializing the 'Energy Consumption' column with empty values
     df['Energy Consumption [kWh]'] = ''
     
