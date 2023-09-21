@@ -1,9 +1,9 @@
 import itertools
 import pandas as pd
+import entry_data_processing
 
 # Constants
 HOURS_IN_YEAR = 8760
-HOLIDAY_MULTIPLIER = 0.1
 PRICE_PER_KW = 2.333
 
 ############################Data###################################
@@ -13,12 +13,6 @@ summer_energy_consumption_24h = [762.34, 760.68, 748.73, 750.72, 866.58, 1044.92
 winter_energy_consumption_24h = [1090.51, 1097.77, 1079.91, 1067.44, 1219.34, 1401.5, 1478.97, 1512.34, 1600, 1575.48, 1545.97, 1535.45, 1526.82, 1512.34, 1581.99, 1587.36, 1569.66, 1572.37, 1551.89, 1518.39, 1434.77, 1278.16, 1147.82, 1019.5]
 ###################################################################
 
-# Function to extend energy consumption list
-def extend_energy_consumption(original_list, hours):
-    return list(itertools.islice(itertools.cycle(original_list), hours))
-
-def holiday_energy_consumption(origina_list):
-    return [x * 0.1 for x in origina_list]
 
 # Function to create DataFrame
 def create_energy_consumption_dataframe():
@@ -42,7 +36,7 @@ def create_energy_consumption_dataframe():
     ]) else 'No')
 
     # Adding a column with information about peak/off-peak zone
-    df['Price per kW [PLN]'] = 2.333
+    df['Price per kW [PLN]'] = PRICE_PER_KW
 
     # Initializing the 'Energy Consumption' column with empty values
     df['Energy Consumption [kWh]'] = ''
@@ -50,14 +44,14 @@ def create_energy_consumption_dataframe():
     return df
 
 def main():
-    summer_energy_consumption_8760h = extend_energy_consumption(summer_energy_consumption_24h, HOURS_IN_YEAR)
-    winter_energy_consumption_8760h = extend_energy_consumption(winter_energy_consumption_24h, HOURS_IN_YEAR)
+    summer_energy_consumption_8760h = entry_data_processing.extend_energy_consumption(summer_energy_consumption_24h, HOURS_IN_YEAR)
+    winter_energy_consumption_8760h = entry_data_processing.extend_energy_consumption(winter_energy_consumption_24h, HOURS_IN_YEAR)
 
-    holiday_summer_energy_consumption_24h = holiday_energy_consumption(summer_energy_consumption_24h)
-    holiday_winter_energy_consumption_24h = holiday_energy_consumption(winter_energy_consumption_24h)
+    holiday_summer_energy_consumption_24h = entry_data_processing.holiday_energy_consumption(summer_energy_consumption_24h)
+    holiday_winter_energy_consumption_24h = entry_data_processing.holiday_energy_consumption(winter_energy_consumption_24h)
 
-    holiday_summer_energy_consumption_8760h = extend_energy_consumption(holiday_summer_energy_consumption_24h, HOURS_IN_YEAR)
-    holiday_winter_energy_consumption_8760h = extend_energy_consumption(holiday_winter_energy_consumption_24h, HOURS_IN_YEAR)
+    holiday_summer_energy_consumption_8760h = entry_data_processing.extend_energy_consumption(holiday_summer_energy_consumption_24h, HOURS_IN_YEAR)
+    holiday_winter_energy_consumption_8760h = entry_data_processing.extend_energy_consumption(holiday_winter_energy_consumption_24h, HOURS_IN_YEAR)
 
     df = create_energy_consumption_dataframe()
 
