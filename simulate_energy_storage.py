@@ -131,7 +131,9 @@ def main():
     df['Balance [kWh]'] = df['Energy Consumption [kWh]'] + df['Energy Consumption by Storage [kWh]'] + df['Air Conditioning [kWh]']
 
     df_styled = df.style.apply(color_rows, axis=1)
-    df_styled.to_excel('simStorage1111.xlsx', index=False, engine='openpyxl')
+    df_styled.to_excel('simulationStorage.xlsx', index=False, engine='openpyxl')
+    print("Data has been saved to the 'simulationStorage.xlsx' file")
+
 
 if __name__ == "__main__":
     main()
