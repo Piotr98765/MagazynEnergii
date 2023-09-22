@@ -3,8 +3,6 @@ import itertools
 # Constants
 HOLIDAY_MULTIPLIER = 0.1
 
-
-
 # Function to extend energy consumption list
 def extend_energy_consumption(original_list, hours):
     return list(itertools.islice(itertools.cycle(original_list), hours))
